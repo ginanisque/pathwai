@@ -1,0 +1,10 @@
+{
+  "short_name": "PathWAI",
+  "name": "PathWAI Global Mobility & Visa Intelligence",
+  "icons": [],
+  "start_url": "/",
+  "background_color": "#0A0A0A",
+  "theme_color": "#0A0A0A",
+  "display": "standalone",
+  "orientation": "portrait"
+}

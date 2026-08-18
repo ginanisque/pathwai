@@ -1,0 +1,102 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.role == 'admin' || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Mobility Profiles
+    match /mobilityProfiles/{profileId} {
+      allow read, write: if isAuthenticated() && (resource == null || resource.data.userId == request.auth.uid || isOwner(profileId) || isAdmin());
+    }
+
+    // Relocation Plans
+    match /relocationPlans/{planId} {
+      allow read, write: if isAuthenticated() && (resource == null || resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Visa Records
+    match /visaRecords/{recordId} {
+      allow read, write: if isAuthenticated() && (resource == null || resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Documents
+    match /documents/{docId} {
+      allow read, write: if isAuthenticated() && (resource == null || resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Interviews
+    match /interviews/{interviewId} {
+      allow read, write: if isAuthenticated() && (resource == null || resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Emergency Contacts
+    match /emergencyContacts/{contactId} {
+      allow read, write: if isAuthenticated() && (
+        resource == null || 
+        resource.data.travellerUserId == request.auth.uid || 
+        resource.data.contactEmail == request.auth.token.email ||
+        isAdmin()
+      );
+    }
+
+    // Safety Checkins
+    match /safetyCheckins/{checkinId} {
+      allow read, write: if isAuthenticated() && (
+        resource == null || 
+        resource.data.travellerUserId == request.auth.uid || 
+        isAdmin()
+      );
+      // Verified emergency contact read access if permitted
+      allow read: if isAuthenticated();
+    }
+
+    // Last Recorded Locations
+    match /lastLocations/{locationId} {
+      allow read, write: if isAuthenticated() && (
+        resource == null || 
+        resource.data.travellerUserId == request.auth.uid || 
+        isAdmin()
+      );
+    }
+
+    // Mobility Alerts
+    match /mobilityAlerts/{alertId} {
+      allow read, write: if isAuthenticated() && (
+        resource == null || 
+        resource.data.userId == request.auth.uid || 
+        isAdmin()
+      );
+    }
+
+    // Audit Logs
+    match /auditLogs/{logId} {
+      allow read: if isAuthenticated() && (
+        resource == null || 
+        resource.data.userId == request.auth.uid || 
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+  }
+}

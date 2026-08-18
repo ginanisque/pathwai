@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: PathWai agent memory API on AWS Lambda and HTTP API Gateway
+
+Parameters:
+  GeminiApiKey:
+    Type: String
+    NoEcho: true
+    Default: ''
+  AllowedOrigin:
+    Type: String
+    Default: '*'
+  FirebaseProjectId:
+    Type: String
+    Default: notetakerai-501411
+
+Resources:
+  PathWaiMemoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../dist-lambda/
+      Handler: lambda.handler
+      Runtime: nodejs24.x
+      MemorySize: 512
+      Timeout: 30
+      Environment:
+        Variables:
+          DATABASE_URL: '{{resolve:secretsmanager:pathwai/database-url:SecretString}}'
+          GEMINI_API_KEY: !Ref GeminiApiKey
+          ALLOWED_ORIGIN: !Ref AllowedOrigin
+          FIREBASE_PROJECT_ID: !Ref FirebaseProjectId
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+Outputs:
+  MemoryApiUrl:
+    Value: !Sub 'https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com'

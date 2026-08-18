@@ -1,0 +1,247 @@
+{
+  "entities": {
+    "users": {
+      "title": "Users",
+      "description": "User accounts with system role",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["traveller", "emergency_contact", "admin"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "mobilityProfiles": {
+      "title": "Mobility Profiles",
+      "description": "Private traveller mobility profiles",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "nationality": { "type": "string" },
+        "currentCountry": { "type": "string" },
+        "destinationCountries": { "type": "array", "items": { "type": "string" } },
+        "purposeOfTravel": { "type": "string" },
+        "currentImmigrationStatus": { "type": "string" },
+        "visaType": { "type": "string" },
+        "visaIssueDate": { "type": "string" },
+        "visaExpirationDate": { "type": "string" },
+        "passportExpiration": { "type": "string" },
+        "schoolOrEmployer": { "type": "string" },
+        "workAuthorisation": { "type": "string" },
+        "qualifications": { "type": "array", "items": { "type": "string" } },
+        "budget": { "type": "number" },
+        "dependants": { "type": "number" },
+        "longTermGoals": { "type": "string" },
+        "sharingSettings": {
+          "type": "object",
+          "properties": {
+            "shareLastLocation": { "type": "boolean" },
+            "shareCheckinStatus": { "type": "boolean" },
+            "shareVisaStatus": { "type": "boolean" }
+          }
+        },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "nationality", "currentCountry"]
+    },
+    "relocationPlans": {
+      "title": "Relocation Plans",
+      "description": "Trip and relocation roadmap plans",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "originCountry": { "type": "string" },
+        "destinationCountry": { "type": "string" },
+        "currentPhase": { "type": "string" },
+        "targetDate": { "type": "string" },
+        "milestones": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "dueDate": { "type": "string" },
+              "completed": { "type": "boolean" },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "destinationCountry"]
+    },
+    "visaRecords": {
+      "title": "Visa Records",
+      "description": "Visa and residence status records",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "country": { "type": "string" },
+        "visaType": { "type": "string" },
+        "status": { "type": "string" },
+        "documentNumber": { "type": "string" },
+        "issueDate": { "type": "string" },
+        "expiryDate": { "type": "string" },
+        "workRights": { "type": "string" },
+        "notes": { "type": "string" },
+        "encryptedImageData": { "type": "string" },
+        "encryptedIv": { "type": "string" },
+        "ocrParsed": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "country", "visaType"]
+    },
+    "documents": {
+      "title": "Documents",
+      "description": "Document and deadline tracker",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "deadline": { "type": "string" },
+        "expiryDate": { "type": "string" },
+        "status": { "type": "string" },
+        "notes": { "type": "string" },
+        "encryptedImageData": { "type": "string" },
+        "encryptedIv": { "type": "string" },
+        "ocrParsed": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "category"]
+    },
+    "interviews": {
+      "title": "Interviews",
+      "description": "Interview appointment and preparation workspace",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "embassyOrLocation": { "type": "string" },
+        "appointmentDate": { "type": "string" },
+        "time": { "type": "string" },
+        "stage": { "type": "string" },
+        "prepNotes": { "type": "string" },
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "question": { "type": "string" },
+              "suggestedAnswer": { "type": "string" }
+            }
+          }
+        },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "appointmentDate"]
+    },
+    "emergencyContacts": {
+      "title": "Emergency Contacts",
+      "description": "Emergency contact invitation and permissions",
+      "type": "object",
+      "properties": {
+        "travellerUserId": { "type": "string" },
+        "contactEmail": { "type": "string" },
+        "contactName": { "type": "string" },
+        "verificationCode": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "verified", "revoked"] },
+        "permissions": {
+          "type": "object",
+          "properties": {
+            "canViewLastLocation": { "type": "boolean" },
+            "canViewCheckinStatus": { "type": "boolean" },
+            "receiveAlerts": { "type": "boolean" }
+          }
+        },
+        "invitedAt": { "type": "string" }
+      },
+      "required": ["travellerUserId", "contactEmail", "contactName", "status"]
+    },
+    "safetyCheckins": {
+      "title": "Safety Checkins",
+      "description": "Scheduled safety check-ins and check-in history",
+      "type": "object",
+      "properties": {
+        "travellerUserId": { "type": "string" },
+        "frequencyHours": { "type": "number" },
+        "nextCheckinDue": { "type": "string" },
+        "lastCheckinTime": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "pending", "overdue", "escalated"] },
+        "gracePeriodMinutes": { "type": "number" },
+        "history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "timestamp": { "type": "string" },
+              "locationLabel": { "type": "string" },
+              "note": { "type": "string" },
+              "status": { "type": "string" }
+            }
+          }
+        },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["travellerUserId", "status"]
+    },
+    "lastLocations": {
+      "title": "Last Recorded Locations",
+      "description": "User-consented last recorded location capture",
+      "type": "object",
+      "properties": {
+        "travellerUserId": { "type": "string" },
+        "locationLabel": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "timestamp": { "type": "string" },
+        "userConsented": { "type": "boolean" }
+      },
+      "required": ["travellerUserId", "locationLabel", "timestamp", "userConsented"]
+    },
+    "mobilityAlerts": {
+      "title": "Mobility Alerts",
+      "description": "Personalised immigration rule and safety alerts",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "alertType": { "type": "string" },
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "sourceUrl": { "type": "string" },
+        "publicationDate": { "type": "string" },
+        "effectiveDate": { "type": "string" },
+        "affectedGroups": { "type": "array", "items": { "type": "string" } },
+        "confidenceLevel": { "type": "string", "enum": ["high", "medium", "low"] },
+        "recommendedAction": { "type": "string" },
+        "requiresLegalAdvice": { "type": "boolean" },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "sourceUrl", "effectiveDate"]
+    },
+    "auditLogs": {
+      "title": "Audit Logs",
+      "description": "Audit log showing every AI recommendation and system action",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "actionType": { "type": "string" },
+        "title": { "type": "string" },
+        "details": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "actorId": { "type": "string" },
+        "source": { "type": "string" }
+      },
+      "required": ["userId", "actionType", "title", "timestamp"]
+    }
+  }
+}

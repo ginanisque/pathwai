@@ -1,0 +1,11 @@
+{
+  "name": "PathWAI",
+  "description": "Personal mobility intelligence and safe-travel platform for international travel, education, relocation, visa alerts, and emergency check-ins.",
+  "requestFramePermissions": [
+    "geolocation",
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

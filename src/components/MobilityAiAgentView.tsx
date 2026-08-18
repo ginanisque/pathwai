@@ -50,7 +50,7 @@ interface AssessmentReport {
   visaPurpose: string;
   applicantNationality: string;
   overallEligibilityScore: number;
-  complianceStatus: 'Verified Compliant' | 'Conditional / Missing Documents' | 'High Risk of Rejection';
+  complianceStatus: 'Ready for official review' | 'More evidence needed' | 'Unable to assess';
   summaryHeadline: string;
   summaryParagraph: string;
   extractedDocuments: Array<{
@@ -58,7 +58,7 @@ interface AssessmentReport {
     title: string;
     category: string;
     extractedFields: Record<string, string>;
-    status: 'verified' | 'flagged' | 'expired';
+    status: 'pending_review' | 'flagged' | 'expired';
     confidenceScore: number;
     policyMappingNotes: string;
   }>;
@@ -191,45 +191,25 @@ When persistent memory is enabled, you do not need to repeat approved context. I
       id: 'doc-1',
       name: 'Passport_Biometric_Scan.pdf',
       type: 'passport',
-      extractedData: {
-        documentNumber: 'P-98241029',
-        expiryDate: '2033-01-14',
-        verifiedValue: 'Valid Passport (Exp 2033 - 7+ Yrs Remaining)',
-        issuingAuthority: `${profile.nationality || 'Canada'} Passport Office`
-      },
-      status: 'verified',
-      confidenceScore: 97
+      status: 'pending'
     },
     {
       id: 'doc-2',
       name: 'Bank_Statement_Liquid_Equity.pdf',
       type: 'proof_of_funds',
-      extractedData: {
-        documentNumber: 'BS-882109',
-        expiryDate: 'N/A',
-        verifiedValue: `$${(profile.budget || 25000).toLocaleString()} USD Liquid Capital Balance`,
-        issuingAuthority: 'Tier 1 Chartered Bank'
-      },
-      status: 'verified',
-      confidenceScore: 93
+      status: 'pending'
     },
     {
       id: 'doc-3',
       name: 'Remote_Employment_Contract.pdf',
       type: 'employment',
-      extractedData: {
-        documentNumber: 'EMP-9012',
-        expiryDate: 'Indefinite',
-        verifiedValue: 'Full-Time Remote Tech Contract ($4,800/mo)',
-        issuingAuthority: 'Global Tech Corp'
-      },
-      status: 'verified',
-      confidenceScore: 91
+      status: 'pending'
     }
   ]);
 
   const [isExtractingDocs, setIsExtractingDocs] = useState(false);
   const [docAssessmentReport, setDocAssessmentReport] = useState<AssessmentReport | null>(null);
+  const [docAssessmentError, setDocAssessmentError] = useState('');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -335,6 +315,7 @@ When persistent memory is enabled, you do not need to repeat approved context. I
   const handleRunRealtimeDocAssessment = async () => {
     setIsExtractingDocs(true);
     setDocAssessmentReport(null);
+    setDocAssessmentError('');
 
     try {
       const response = await fetch('/api/agent/visa-assessment', {
@@ -361,7 +342,7 @@ When persistent memory is enabled, you do not need to repeat approved context. I
         sender: 'agent',
         text: `### Real-Time Visa Requirement Assessment Complete for ${report.destinationCountry}
 
-**Eligibility Score:** ${report.overallEligibilityScore}/100 (${report.complianceStatus})
+**Checklist Readiness:** ${report.overallEligibilityScore}/100 (${report.complianceStatus})
 
 ${report.summaryParagraph}
 
@@ -369,7 +350,7 @@ ${report.summaryParagraph}
 - **Policy Rules Evaluated:** ${report.policyRuleMappings.length}
 - **Missing Mandatory Docs:** ${report.missingMandatoryDocs.length === 0 ? 'None (Full Set Uploaded)' : report.missingMandatoryDocs.join(', ')}
 
-You can review the full extraction matrix below or ask me any questions regarding your document validation!`,
+This is an AI-generated checklist review, not document authentication or a visa approval prediction.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         statutoryReferences: report.policyRuleMappings.map(r => r.statutoryReference).filter(Boolean)
       };
@@ -377,6 +358,7 @@ You can review the full extraction matrix below or ask me any questions regardin
       setMessages(prev => [...prev, agentMsg]);
     } catch (err) {
       console.error('Error running real-time doc assessment:', err);
+      setDocAssessmentError('Document readiness is unavailable. No document was extracted or verified. Try again after confirming the AI service is available.');
     } finally {
       setIsExtractingDocs(false);
     }
@@ -387,14 +369,7 @@ You can review the full extraction matrix below or ask me any questions regardin
       id: `doc-${Date.now()}`,
       name,
       type: docType,
-      extractedData: {
-        documentNumber: `FILE-${Math.floor(10000 + Math.random() * 90000)}`,
-        expiryDate: '2026-12-31',
-        verifiedValue: 'Sample Verified Attachment',
-        issuingAuthority: 'Official Issuer'
-      },
-      status: 'verified',
-      confidenceScore: 95
+      status: 'pending'
     };
     setUploadedDocs(prev => [...prev, newDoc]);
   };
@@ -613,7 +588,7 @@ You can review the full extraction matrix below or ask me any questions regardin
 
                     {doc.extractedData && (
                       <div className="text-[10px] text-[#999] space-y-0.5 bg-[#0C0C0C] p-2 rounded-sm border border-[#1E1E1E]">
-                        <p><strong className="text-white">Extracted:</strong> {doc.extractedData.verifiedValue}</p>
+                        <p><strong className="text-white">User-provided value:</strong> {doc.extractedData.verifiedValue}</p>
                         <p><strong className="text-white">Issuer:</strong> {doc.extractedData.issuingAuthority}</p>
                         <p><strong className="text-white">Expiry:</strong> {doc.extractedData.expiryDate}</p>
                       </div>
@@ -647,7 +622,7 @@ You can review the full extraction matrix below or ask me any questions regardin
                   ) : (
                     <>
                       <FileSearch className="w-4 h-4 text-black" />
-                      <span>RUN REAL-TIME AI VISA ASSESSMENT</span>
+                      <span>RUN AI DOCUMENT READINESS REVIEW</span>
                     </>
                   )}
                 </button>
@@ -656,6 +631,11 @@ You can review the full extraction matrix below or ask me any questions regardin
           </div>
 
           {/* Assessment Report Results Card */}
+          {docAssessmentError && (
+            <div role="alert" className="rounded-sm border border-red-500/40 bg-red-950/30 p-4 text-xs text-red-100">
+              {docAssessmentError}
+            </div>
+          )}
           {docAssessmentReport && (
             <div className="p-5 bg-[#0F0F0F] border border-amber-500/30 rounded-sm space-y-5 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#222] pb-4">
@@ -672,7 +652,7 @@ You can review the full extraction matrix below or ask me any questions regardin
                 </div>
 
                 <div className="p-3 bg-[#181818] border border-[#2A2A2A] rounded-sm text-right shrink-0">
-                  <span className="text-[10px] text-[#888] font-bold uppercase block">Compliance Score</span>
+                  <span className="text-[10px] text-[#888] font-bold uppercase block">Checklist readiness</span>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="text-2xl font-black text-amber-400">
                       {docAssessmentReport.overallEligibilityScore}
@@ -688,7 +668,7 @@ You can review the full extraction matrix below or ask me any questions regardin
               <div className="space-y-3">
                 <h4 className="text-xs font-bold uppercase text-white flex items-center gap-2">
                   <Scale className="w-4 h-4 text-amber-400" />
-                  Statutory Policy Rule Mapping Matrix
+                  AI checklist and source review
                 </h4>
 
                 <div className="overflow-x-auto border border-[#222] rounded-sm">
@@ -697,7 +677,7 @@ You can review the full extraction matrix below or ask me any questions regardin
                       <tr>
                         <th className="p-2.5">Immigration Policy Rule</th>
                         <th className="p-2.5">Statutory Requirement</th>
-                        <th className="p-2.5">Extracted Document Data</th>
+                        <th className="p-2.5">Submitted evidence</th>
                         <th className="p-2.5">Status</th>
                         <th className="p-2.5">Statutory Reference</th>
                       </tr>

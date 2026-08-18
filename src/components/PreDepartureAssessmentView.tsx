@@ -131,10 +131,10 @@ export const PreDepartureAssessmentView: React.FC<PreDepartureAssessmentViewProp
 
       // Evaluation Rules Engine
       if (purpose === 'digital_nomad' || purpose === 'relocation') {
-        if (monthlyIncome < 3280 && destLower.includes('portugal')) {
+        if (monthlyIncome < 3680 && destLower.includes('portugal')) {
           status = 'conditional';
           score -= 25;
-          criticalPitfalls.push(`Income of $${monthlyIncome}/mo falls short of Portugal D8 Digital Nomad statutory threshold (€3,280/mo or 4x minimum wage). You must supplement with proven savings or secondary income.`);
+          criticalPitfalls.push(`Reported income of $${monthlyIncome}/mo is below the 2026 planning reference of €3,680 (four times Portugal's €920 continental minimum wage). Currency, visa category, and current consular instructions must be verified before applying.`);
         }
       }
 
@@ -177,16 +177,17 @@ export const PreDepartureAssessmentView: React.FC<PreDepartureAssessmentViewProp
         const metReqs: string[] = [];
         const missingReqs: string[] = [];
 
-        if (monthlyIncome >= 3200) metReqs.push(`Proven income ($${monthlyIncome.toLocaleString()}/mo) meets statutory requirements.`);
-        else missingReqs.push(`Proven monthly income ($${monthlyIncome.toLocaleString()}) is below recommended threshold.`);
+        if (destLower.includes('portugal') && monthlyIncome >= 3680) metReqs.push(`Reported income ($${monthlyIncome.toLocaleString()}/mo) meets the 2026 Portugal planning reference; official evidence still requires review.`);
+        else if (destLower.includes('portugal')) missingReqs.push(`Reported monthly income ($${monthlyIncome.toLocaleString()}) is below the 2026 Portugal planning reference.`);
+        else metReqs.push(`Reported income: $${monthlyIncome.toLocaleString()}/mo. Verify the destination-specific requirement.`);
 
         if (savingsCapital >= 10000) metReqs.push(`Liquid capital ($${savingsCapital.toLocaleString()}) covers initial relocation buffer.`);
         else missingReqs.push(`Liquid capital ($${savingsCapital.toLocaleString()}) is below recommended €10,000 emergency buffer.`);
 
-        if (hasCleanPoliceCheck) metReqs.push('Police background check cleared.');
+        if (hasCleanPoliceCheck) metReqs.push('Police background check reported as available; authenticity and validity are not verified.');
         else missingReqs.push('Missing apostilled police criminal clearance certificate.');
 
-        if (hasHealthInsurance) metReqs.push('International health & repatriation insurance verified.');
+        if (hasHealthInsurance) metReqs.push('International health and repatriation insurance reported as held; coverage is not verified.');
         else missingReqs.push('Health insurance policy not yet secured.');
 
         return {
@@ -257,11 +258,11 @@ export const PreDepartureAssessmentView: React.FC<PreDepartureAssessmentViewProp
         status,
         score: Math.max(10, score),
         headline: status === 'qualified'
-          ? `High Eligibility for ${targetCountry} Visa & Relocation`
+          ? `Strong Checklist Readiness for ${targetCountry}`
           : status === 'conditional'
-          ? `Conditional Eligibility: Immediate Pre-Departure Action Required`
-          : `High Risk of Refusal: Mandatory Requirement Gaps Identified`,
-        summary: `Assessment parsed origin passport (${originCountry}) against destination regulations in ${targetCountry} for ${purpose.replace('_', ' ')}. Review pre-departure statutory requirements below before booking travel.`,
+          ? `Checklist Gaps: Pre-Departure Action Required`
+          : `Low Checklist Readiness: Important Evidence Missing`,
+        summary: `This planning estimate compares your self-reported answers with general guidance for ${targetCountry}. It is not a visa approval probability or document verification. Confirm every requirement with the official authority before booking travel.`,
         matchedVisas,
         preDepartureSteps,
         postArrivalSteps,
@@ -345,18 +346,18 @@ export const PreDepartureAssessmentView: React.FC<PreDepartureAssessmentViewProp
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="px-2 py-0.5 bg-amber-500 text-black text-[9px] font-black uppercase rounded">
-              OFFICIAL IMMIGRATION CHECKER
+              TRAVEL READINESS CHECKLIST
             </span>
             <span className="text-xs font-mono text-[#888]">
-              STATUTORY WORK PERMIT & VISA ELIGIBILITY AUDIT
+              INFORMATIONAL VISA & WORK-PERMIT PLANNING
             </span>
           </div>
           <h2 className="text-xl font-black uppercase tracking-wider text-white flex items-center gap-2">
             <Scale className="w-6 h-6 text-amber-400" />
-            <span>Pre-Departure Visa & Work Permit Eligibility Assessment</span>
+            <span>Pre-Departure Visa & Work-Permit Readiness Review</span>
           </h2>
           <p className="text-xs text-[#AAA] mt-1 max-w-3xl leading-relaxed">
-            Understand exactly what you must do BEFORE traveling into target countries. Avoid visa refusals, illegal work violations, and border entry rejections.
+            Organize likely pre-travel requirements, then verify them with the destination's official immigration authority before applying or booking.
           </p>
         </div>
 
@@ -587,11 +588,11 @@ export const PreDepartureAssessmentView: React.FC<PreDepartureAssessmentViewProp
                       ? 'bg-amber-500 text-black border-amber-400'
                       : 'bg-red-600 text-white border-red-500'
                   }`}>
-                    {assessmentResult.status === 'qualified' ? 'QUALIFIED FOR RELOCATION' : assessmentResult.status === 'conditional' ? 'CONDITIONALLY ELIGIBLE' : 'HIGH RISK OF REFUSAL'}
+                    {assessmentResult.status === 'qualified' ? 'STRONG CHECKLIST READINESS' : assessmentResult.status === 'conditional' ? 'MORE EVIDENCE NEEDED' : 'LOW CHECKLIST READINESS'}
                   </span>
 
                   <span className="text-xs font-mono text-[#AAA]">
-                    Eligibility Index: <strong className="text-white font-bold">{assessmentResult.score}/100</strong>
+                    Checklist Readiness: <strong className="text-white font-bold">{assessmentResult.score}/100</strong>
                   </span>
                 </div>
 
@@ -881,7 +882,7 @@ export const PreDepartureAssessmentView: React.FC<PreDepartureAssessmentViewProp
           {/* Statutory Legal Disclaimer */}
           <div className="p-4 bg-[#080808] border border-[#1C1C1C] rounded-sm text-[10px] text-[#666] font-mono leading-relaxed">
             <strong className="text-[#888] font-bold uppercase block mb-1">STATUTORY LEGAL DISCLAIMER:</strong>
-            Pathway AI provides statutory informational guidance, eligibility algorithms, and document organization tools based on publicly published immigration guidelines of host country authorities ({assessmentResult.officialAgencyName || 'Government Immigration Services'}). This software does not provide legal representation, formal legal advice, or guarantees of visa issuance or border entry approval. Statutory requirements, income thresholds, and consular procedures are subject to change without notice by government authorities. Always verify final application packages with a qualified immigration lawyer or official consular mission.
+            PathWAI provides an informational checklist based on self-reported answers and general public guidance. The score is not a probability of approval, and PathWAI does not authenticate documents, provide legal representation, or guarantee visa issuance or entry. Requirements change; verify the current rules with {assessmentResult.officialAgencyName || 'the official immigration authority'} before acting.
           </div>
         </div>
       )}
@@ -968,4 +969,3 @@ export const PreDepartureAssessmentView: React.FC<PreDepartureAssessmentViewProp
     </div>
   );
 };
-

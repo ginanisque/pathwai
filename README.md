@@ -109,7 +109,7 @@ Do not place `DATABASE_URL`, Firebase private keys, CockroachDB passwords, or AW
 credentials in Amplify environment variables prefixed with `VITE_`; those values become
 part of the public browser bundle.
 
-For production, move secrets from Lambda environment variables into AWS Secrets Manager and replace the demo `x-pathwai-user` header with verified Firebase/JWT claims.
+The CockroachDB connection string is resolved from AWS Secrets Manager, and memory routes verify Firebase JWT signature, issuer, audience, expiry, and user identity. Store the optional Gemini key in a server-side secret as well; never expose it to the Vite client.
 
 ## Memory API
 
@@ -127,6 +127,8 @@ Memory and deployed-agent calls require a Firebase ID token in `Authorization: B
 - Do not store passport numbers, document images, precise locations, abuse narratives, or emergency-contact details in agent memory.
 - Database credentials stay in the server/Lambda environment.
 - The UI exposes memory provenance and per-memory deletion.
+- Document readiness is an AI-generated checklist review, not document authentication or a visa approval prediction. Missing AI fails closed instead of returning synthetic verification.
+- Safety and SOS surfaces are prototypes: they do not send SMS/email, notify trusted contacts, or contact emergency services.
 
 ## Repository map
 

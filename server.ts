@@ -963,106 +963,18 @@ app.post('/api/agent/visa-assessment', async (req, res) => {
     const aiClient = getGeminiClient();
 
     if (!aiClient) {
-      // High-quality structured fallback for real-time document extraction & policy mapping
-      return res.json({
+      return res.status(503).json({
         destinationCountry: dest,
         visaPurpose: purpose,
         applicantNationality: nationality,
-        overallEligibilityScore: 88,
-        complianceStatus: 'Verified Compliant',
-        summaryHeadline: `High Statutory Visa Eligibility for ${dest} (${purpose.replace('_', ' ').toUpperCase()})`,
-        summaryParagraph: `Our Real-Time AI Document Agent extracted data from your uploaded files and mapped them against current ${dest} immigration regulations. Your financial liquidity ($${(profile?.budget || 25000).toLocaleString()}) exceeds official statutory thresholds.`,
-        extractedDocuments: (documents && documents.length > 0) ? documents.map((doc: any) => ({
-          documentId: doc.id || `doc-${Math.random()}`,
-          title: doc.name || doc.title || 'Uploaded Document',
-          category: doc.type || doc.category || 'proof_of_funds',
-          extractedFields: {
-            issuingAuthority: `${dest} Consular Services / Bank Issuer`,
-            documentNumber: `EXT-${Math.floor(100000 + Math.random() * 900000)}`,
-            extractedDate: '2025-11-20',
-            expiryDate: '2033-05-10',
-            verifiedValue: doc.type === 'passport' ? `Valid Passport (Exp: 2033)` :
-                           doc.type === 'proof_of_funds' ? `$${(profile?.budget || 28000).toLocaleString()} Liquid Capital` :
-                           doc.type === 'employment' ? 'Senior Software Engineer (Remote Work Permitted)' :
-                           'Verified Authenticated Record'
-          },
-          status: 'verified',
-          confidenceScore: 94,
-          policyMappingNotes: `Data matches mandatory statutory criteria for ${dest}.`
-        })) : [
-          {
-            documentId: 'doc-pass-1',
-            title: 'International Passport Scan',
-            category: 'passport',
-            extractedFields: {
-              issuingAuthority: `${nationality} Passport Office`,
-              documentNumber: 'P98241029',
-              extractedDate: '2023-01-15',
-              expiryDate: '2033-01-14',
-              verifiedValue: 'Valid Passport (Exp 2033 - 7+ years remaining)'
-            },
-            status: 'verified',
-            confidenceScore: 96,
-            policyMappingNotes: 'Exceeds the 6-month validity rule beyond planned exit date.'
-          },
-          {
-            documentId: 'doc-bank-1',
-            title: 'Bank Statement & Proof of Liquid Funds',
-            category: 'proof_of_funds',
-            extractedFields: {
-              issuingAuthority: 'Tier 1 Commercial Bank',
-              documentNumber: 'BS-882109',
-              extractedDate: '2026-07-01',
-              expiryDate: 'N/A',
-              verifiedValue: `$${(profile?.budget || 25000).toLocaleString()} USD Verified Liquid Balance`
-            },
-            status: 'verified',
-            confidenceScore: 92,
-            policyMappingNotes: `Exceeds minimum statutory threshold of €3,200/mo or €30,000 lump sum for ${dest}.`
-          }
-        ],
-        policyRuleMappings: [
-          {
-            ruleName: 'Passport Validity Beyond Stay',
-            statutoryRequirement: 'Passport must be valid for at least 6 months past intended departure date.',
-            extractedValueFromDoc: 'Passport expires in 2033 (7+ years validity remaining)',
-            ruleStatus: 'passed',
-            statutoryReference: 'Article 5 Schengen Borders Code / National Entry Act'
-          },
-          {
-            ruleName: 'Minimum Monthly Income / Liquid Equity',
-            statutoryRequirement: `Must demonstrate minimum $3,200/month remote income or $25,000 liquid capital for ${dest}.`,
-            extractedValueFromDoc: `$${(profile?.budget || 25000).toLocaleString()} USD verified liquid balance`,
-            ruleStatus: 'passed',
-            statutoryReference: 'Official Regulatory Gazette / Immigration Decree'
-          },
-          {
-            ruleName: 'Clean Criminal Background Check',
-            statutoryRequirement: 'Apostilled criminal record check issued within 90 days of application.',
-            extractedValueFromDoc: 'Federal Police Clearance Certificate (Valid)',
-            ruleStatus: 'passed',
-            statutoryReference: 'Law on Legal Status of Foreigners'
-          },
-          {
-            ruleName: 'Comprehensive International Health Insurance',
-            statutoryRequirement: 'Repatriation and medical coverage minimum €30,000 limit.',
-            extractedValueFromDoc: 'Global Expat Health Policy (Active)',
-            ruleStatus: 'passed',
-            statutoryReference: 'Consular Visa Ordinance Article 12'
-          }
-        ],
-        missingMandatoryDocs: [],
-        actionRecommendations: [
-          `Schedule biometric appointment at your local ${dest} VFS/Consulate center.`,
-          'Ensure bank statement carries an official bank stamp or digital QR authentication.',
-          'Bring original apostilled police record and 2 passport photos to interview.'
-        ],
-        disclaimer: 'DISCLAIMER: AI Assessment maps extracted documents against policy rules. Final visa issuance remains subject to consular discretion.'
+        error: 'ai_unavailable',
+        message: 'Document readiness could not be assessed because the AI service is unavailable. No document was extracted or verified.'
       });
     }
 
     const prompt = `You are Pathway AI's Senior Real-Time AI Visa Requirement Assessment & Document Extraction Agent.
 Analyze the user's mobility profile and uploaded document details for destination: ${dest} (Visa Purpose: ${purpose}).
+Current date: ${new Date().toISOString().slice(0, 10)}.
 
 APPLICANT MOBILITY PROFILE:
 ${JSON.stringify(profile, null, 2)}
@@ -1070,11 +982,19 @@ ${JSON.stringify(profile, null, 2)}
 UPLOADED DOCUMENTS TO EXTRACT AND AUDIT:
 ${JSON.stringify(documents, null, 2)}
 
+EVIDENCE RULES (MANDATORY):
+- Treat the JSON above as the complete evidence. It may contain metadata only, not document contents.
+- NEVER invent, infer, or autocomplete an issuer, document number, date, balance, employment detail, or other document field.
+- For every absent field, return "Not provided" and confidenceScore 0.
+- A filename, category, profile budget, or user-entered label is not evidence extracted from a document.
+- Use status "pending_review" unless the submitted JSON contains the exact value being assessed. Never claim authenticity or official verification.
+
 TASK:
-1. Perform real-time extraction on each document (extract title, category, issuing authority, expiry dates, verified values, confidence score 0-100).
-2. Map extracted document values directly against current official immigration policy rules for ${dest}.
+1. Summarize only document values explicitly present in the submitted JSON.
+2. Compare those supplied values against rules, clearly separating user-provided data from official requirements.
 3. Identify passing rules, failing rules, and missing mandatory documents.
-4. Provide an overall eligibility score (0-100), compliance status ("Verified Compliant" | "Conditional / Missing Documents" | "High Risk of Rejection"), headline, and clear action recommendations.
+4. Provide a checklist readiness score (0-100), not a visa approval probability, with status ("Ready for official review" | "More evidence needed" | "Unable to assess").
+5. Every rule must include a direct official source URL and the date it was retrieved. If unavailable, mark the rule "action_needed" rather than guessing.
 
 Return ONLY valid JSON with this exact schema:
 {
@@ -1082,7 +1002,7 @@ Return ONLY valid JSON with this exact schema:
   "visaPurpose": "${purpose}",
   "applicantNationality": "${nationality}",
   "overallEligibilityScore": number 0-100,
-  "complianceStatus": "Verified Compliant" | "Conditional / Missing Documents" | "High Risk of Rejection",
+  "complianceStatus": "Ready for official review" | "More evidence needed" | "Unable to assess",
   "summaryHeadline": "Short headline",
   "summaryParagraph": "Detailed summary paragraph",
   "extractedDocuments": [
@@ -1097,7 +1017,7 @@ Return ONLY valid JSON with this exact schema:
         "expiryDate": "YYYY-MM-DD",
         "verifiedValue": "Summary of extracted value e.g. $35,000 Liquid Balance"
       },
-      "status": "verified" | "flagged" | "expired",
+      "status": "pending_review" | "flagged" | "expired",
       "confidenceScore": number 0-100,
       "policyMappingNotes": "Notes on statutory mapping"
     }
@@ -1108,12 +1028,12 @@ Return ONLY valid JSON with this exact schema:
       "statutoryRequirement": "Requirement description",
       "extractedValueFromDoc": "Extracted value from user's document",
       "ruleStatus": "passed" | "failed" | "action_needed",
-      "statutoryReference": "Law / Statutory Act reference"
+      "statutoryReference": "Direct official URL plus retrieval date"
     }
   ],
   "missingMandatoryDocs": ["Missing Doc 1", "Missing Doc 2"],
   "actionRecommendations": ["Step 1", "Step 2", "Step 3"],
-  "disclaimer": "Legal disclaimer statement"
+  "disclaimer": "State that this is an AI-generated checklist review, not document authentication, legal advice, or a visa approval prediction."
 }`;
 
     const response = await aiClient.models.generateContent({
@@ -1123,6 +1043,48 @@ Return ONLY valid JSON with this exact schema:
     });
 
     const parsed = JSON.parse(response.text || '{}');
+    const submittedDocuments = Array.isArray(documents) ? documents : [];
+    parsed.extractedDocuments = submittedDocuments.map((submitted: any) => {
+      const modelDocument = Array.isArray(parsed.extractedDocuments)
+        ? parsed.extractedDocuments.find((item: any) => item.documentId === submitted.id)
+        : undefined;
+      const supplied = submitted.extractedData || {};
+      return {
+        documentId: submitted.id || 'unidentified-document',
+        title: submitted.name || submitted.title || 'Untitled document',
+        category: submitted.type || submitted.category || 'other',
+        extractedFields: {
+          issuingAuthority: supplied.issuingAuthority || 'Not provided',
+          documentNumber: supplied.documentNumber || 'Not provided',
+          extractedDate: supplied.extractedDate || 'Not provided',
+          expiryDate: supplied.expiryDate || 'Not provided',
+          verifiedValue: supplied.verifiedValue || 'Not provided'
+        },
+        status: 'pending_review',
+        confidenceScore: 0,
+        policyMappingNotes: supplied.verifiedValue
+          ? 'User-provided metadata only; document authenticity has not been verified.'
+          : modelDocument?.policyMappingNotes || 'No document contents were provided for extraction.'
+      };
+    });
+    parsed.policyRuleMappings = Array.isArray(parsed.policyRuleMappings)
+      ? parsed.policyRuleMappings.map((rule: any) => {
+          const hasDirectOfficialUrl = typeof rule.statutoryReference === 'string' && /^https:\/\//.test(rule.statutoryReference);
+          return {
+            ...rule,
+            ruleStatus: hasDirectOfficialUrl ? rule.ruleStatus : 'action_needed',
+            statutoryReference: hasDirectOfficialUrl
+              ? rule.statutoryReference
+              : `Official source required; not supplied by AI (reviewed ${new Date().toISOString().slice(0, 10)})`
+          };
+        })
+      : [];
+    parsed.complianceStatus = parsed.complianceStatus === 'Ready for official review'
+      ? 'Ready for official review'
+      : parsed.complianceStatus === 'Unable to assess'
+        ? 'Unable to assess'
+        : 'More evidence needed';
+    parsed.disclaimer = 'AI-generated checklist review only. PathWAI has not authenticated any document, verified any submitted value, provided legal advice, or predicted visa approval. Confirm requirements with the official authority.';
     res.json(parsed);
   } catch (error: any) {
     console.error('Error in real-time AI visa requirement assessment endpoint:', error);
@@ -1201,7 +1163,7 @@ Spending 183+ cumulative days in a foreign jurisdiction automatically triggers l
 - **VAWA (Form I-360):** If married to a US Citizen or Green Card holder and experiencing battery or cruelty, federal law (8 U.S.C. 1367) guarantees confidential self-petitioning without your spouse's knowledge or consent.
 - **T-Visa (Form I-914):** Provides 4-year legal status, work permit, and refugee benefits for victims of force, fraud, or coercion.`;
       } else {
-        reply += `\n\nI have evaluated your request against statutory immigration frameworks. To give you 100% accurate statutory predictions, ensure your **Mobility Profile** contains your passport expiration, target country, and current visa status.`;
+        reply += `\n\nI can organize your question against general immigration guidance, but I cannot provide a guaranteed or perfectly current prediction. Add your passport expiration, target country, and current visa status, then verify the result with the official authority.`;
       }
 
       const missingFields: string[] = [];

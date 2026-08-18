@@ -76,7 +76,7 @@ export const initialVisaRecords: VisaRecord[] = [
     issueDate: '2026-01-15',
     expiryDate: '2026-10-15',
     workRights: 'Permitted to perform remote work for non-PT entity',
-    conditions: ['Requires minimum income 4x PT minimum wage (€3,280/mo)', 'Health insurance coverage mandatory'],
+    conditions: ['Planning reference: 4x PT minimum wage (€3,680/mo for continental Portugal in 2026; verify before applying)', 'Health-insurance requirements must be verified'],
     notes: 'VFS Submission in progress.',
     createdAt: new Date().toISOString()
   },
@@ -116,7 +116,7 @@ export const initialDocuments: MobilityDocument[] = [
     deadline: '2026-08-10',
     expiryDate: '2026-12-31',
     status: 'valid',
-    notes: 'Contains 6 months of bank statements exceeding €3,280/mo requirement.',
+    notes: 'Synthetic demo statements intended to illustrate recurring-income evidence; not authenticated or officially reviewed.',
     createdAt: new Date().toISOString()
   },
   {
@@ -245,7 +245,7 @@ export const initialMobilityAlerts: MobilityAlert[] = [
     effectiveDate: '2026-01-01',
     affectedGroups: ['D7 Visa Applicants', 'Digital Nomad Residence Holders', 'Foreign Remote Workers'],
     confidenceLevel: 'high',
-    recommendedAction: 'Verify that monthly salary paystubs show at least €3,280/month prior to VFS biometrics interview.',
+    recommendedAction: 'Compare pay slips with the current official income requirement before the consular appointment.',
     requiresLegalAdvice: true,
     isRead: false,
     verifiedByAdmin: true,
@@ -358,4 +358,3 @@ export const emptyRelocationPlan: RelocationPlan = {
   notes: '',
   createdAt: new Date().toISOString()
 };
-

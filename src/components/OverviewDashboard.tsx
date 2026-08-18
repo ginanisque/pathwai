@@ -199,7 +199,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
       icon: Bot,
       glowColor: 'from-blue-500/20 via-indigo-500/10 to-transparent',
       borderColor: 'border-blue-500/30 hover:border-blue-500/60',
-      description: 'Audit passport origin, verify statutory income thresholds (e.g. €3,280/mo D7 visa), and consult our 24/7 AI mobility agent.',
+      description: 'Review passport context, compare reported income with current official guidance, and consult the AI mobility assistant.',
       actions: [
         { label: 'Consult AI Agent', tab: 'agent', primary: true, icon: Bot },
         { label: 'Run Eligibility Audit', tab: 'assessment', primary: false, icon: Compass }
@@ -1085,5 +1085,4 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
     </div>
   );
 };
-
 

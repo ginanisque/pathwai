@@ -311,7 +311,7 @@ export const SafetyCheckinView: React.FC<SafetyCheckinViewProps> = ({
               <span>Personal Outing & Date Safety Vault</span>
             </h2>
             <p className="text-xs text-purple-200/80 mt-1 max-w-3xl leading-relaxed">
-              Going on a date or meeting someone new? Store hidden details (venue location, companion phone, car license plate, photos) without revealing them to anyone. If you don't check in at your appointed time, Pathway automatically releases these details to your designated trusted contacts.
+              Prototype only: organize outing details locally for your own reference. PathWAI does not automatically release details, notify trusted contacts, or contact emergency services.
             </p>
           </div>
 
@@ -350,7 +350,7 @@ export const SafetyCheckinView: React.FC<SafetyCheckinViewProps> = ({
             <div className="flex items-center gap-2.5 text-purple-300">
               <Shield className="w-4 h-4 text-purple-400 shrink-0" />
               <span>
-                <strong>PRIVACY SHIELD ACTIVE:</strong> Companion names, photos, phone numbers & car plates are hidden from screen. They remain securely stored and will auto-dispatch if check-in is missed.
+                <strong>DISPLAY HIDDEN:</strong> Companion details are concealed on this screen only. This prototype does not provide secure custody or automatic dispatch when a check-in is missed.
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -755,7 +755,7 @@ export const SafetyCheckinView: React.FC<SafetyCheckinViewProps> = ({
             </div>
 
             <p className="text-xs text-red-100/90 leading-relaxed">
-              Triggers a one-time GPS location capture and immediately alerts all verified emergency contacts via SMS & Email. Includes a 10-second cancel delay to prevent false alarms.
+              Demo preview only: requests a one-time browser location and shows the alert flow. No SMS, email, trusted-contact alert, or emergency-service dispatch is sent.
             </p>
 
             <button
@@ -802,7 +802,7 @@ export const SafetyCheckinView: React.FC<SafetyCheckinViewProps> = ({
             <div className="p-3 bg-[#181818] rounded text-xs text-[#AAA] border-l-2 border-yellow-500 space-y-1">
               <p className="font-bold text-white uppercase text-[10px]">Escalation Safeguard Protocol</p>
               <p className="text-[11px]">
-                If a check-in is missed, Pathway AI sends 3 progressive notifications to the traveller during the {checkinConfig.gracePeriodMinutes}-minute grace period before notifying verified emergency contacts.
+                Prototype reminder sequence for a {checkinConfig.gracePeriodMinutes}-minute grace period. It is not a durable background service and does not notify emergency contacts.
               </p>
             </div>
 

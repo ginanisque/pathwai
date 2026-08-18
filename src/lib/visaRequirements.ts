@@ -100,7 +100,7 @@ export const getVisaOptionsForRoute = (
   if (normDest.includes('portugal') || normDest.includes('portuguese')) {
     options = [
       { id: 'pt_d7', name: 'Portugal D7 Passive Income & Pensioner Visa', category: 'Residence Visa', processingTime: '60-90 Days', description: 'For remote workers, retirees, and individuals with min. €820/mo proven passive income.' },
-      { id: 'pt_d8', name: 'Portugal D8 Digital Nomad Visa (Remote Work)', category: 'Residence / Temp Visa', processingTime: '45-60 Days', description: 'Requires remote work contract/freelance income of min. €3,280/mo (4x min wage).' },
+      { id: 'pt_d8', name: 'Portugal D8 Digital Nomad Visa (Remote Work)', category: 'Residence / Temp Visa', processingTime: 'Verify with consulate', description: 'Requires qualifying remote work evidence and average monthly income tied to four times Portugal’s current minimum wage. The 2026 continental reference is €3,680; verify the current consular amount before applying.' },
       { id: 'pt_d2', name: 'Portugal D2 Entrepreneur & Independent Worker Visa', category: 'Business / Freelance', processingTime: '60-90 Days', description: 'For business founders, startup creators, or independent service providers.' },
       { id: 'pt_d3', name: 'Portugal D3 Highly Qualified Activity (Tech / Executive)', category: 'Tech & Research', processingTime: '30-60 Days', description: 'Fast-track for qualified specialists, software engineers, and researchers.' },
       { id: 'pt_job_seeker', name: 'Portugal Job Seeker Visa (120 Days)', category: 'Work Search', processingTime: '30-45 Days', description: 'Allows 120 days (extendable by 60 days) to find employment in Portugal.' },
@@ -228,4 +228,3 @@ export const getVisaOptionsForRoute = (
     options: finalOptions
   };
 };
-

@@ -99,7 +99,7 @@ export const VisaStatusWorkflowView: React.FC<VisaStatusWorkflowViewProps> = ({
       if (currentStatus === 'application_started') {
         setAiAdvice(
           `AI Strategic Checklist for ${target} Visa Approval:\n` +
-          `1. Ensure remote income proof shows at least €3,280/mo (4x Portuguese statutory threshold) deposited consistently.\n` +
+          `1. For Portugal remote-work planning, compare income evidence with the current four-times-minimum-wage rule (€3,680 using the 2026 continental reference) and verify the amount with the consulate.\n` +
           `2. Verify police criminal record certificate has an official Apostille stamp dated within the last 90 days.\n` +
           `3. Prepare 12-month lease agreement or NIF tax registration for your VFS biometrics interview.`
         );
@@ -339,7 +339,7 @@ export const VisaStatusWorkflowView: React.FC<VisaStatusWorkflowViewProps> = ({
                     2. Proof of Liquid Funds & Income Audit
                   </p>
                   <p className="text-[10px] text-slate-200 mt-0.5 font-mono">
-                    Bank statements showing statutory minimum monthly threshold (e.g. €3,280/mo).
+                    Bank statements showing the required recurring income. For Portugal, verify the current four-times-minimum-wage amount with the consulate.
                   </p>
                 </div>
               </div>
